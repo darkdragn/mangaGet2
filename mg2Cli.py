@@ -120,9 +120,11 @@ def zipItUp(zipName, zipItArgs='w'):
             zipIt.write('/'.join([root, f]),'/'.join([root.split('/')[-1], f]))
     zipIt.close()
     
-def main(site, series, chap=None, extras=None):
-    # Search Functions
-    hold = site.Series(series, extras)
+def main(site, series, chap=None, extras=None, search=None):
+    if search:
+      hold = site.runSearch(series)
+    else:
+      hold = site.Series(series, extras)
     if chap:
         downChapThreading(hold.chapters[chap-1])
     else:
@@ -141,6 +143,8 @@ if __name__ == '__main__':
                         metavar='chapter', type=int, help='Specify a single chapter.')
     parser.add_argument('-s', action='store', dest='site', default='mp', 
                         metavar='site', help='Specify a site.')
+    parser.add_argument('-se', action='store_true', dest='search', default=False,
+			help='Search a site.')
     parser.add_argument('-sl', action='store_true', dest='list', 
                         help='List all supported sites.')
     parser.add_argument('-x', action='store', dest='extras', default=None, 
@@ -161,6 +165,7 @@ if __name__ == '__main__':
             if results.site == tag:
                 args.update({'site': i})
                 break
+    args.update({'search': results.search})
     args.update({'series': results.series})
     if results.chapter:
         args.update({'chap': results.chapter})
