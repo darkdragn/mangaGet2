@@ -1,12 +1,29 @@
 import re
 from mangaGet2.mangaSite import mangaSite
-from mangaGet2.util import memorize
+import mangaGet2.util as util
+
+#Aliases
+memorize = util.memorize
+webpage  = util.webpage
 
 class perveden(mangaSite):
     tags = [ 'pe', 'perveden' ]
+    siteTemplate = 'http://www.perveden.com{}'
+    searchTemplate = siteTemplate.format('/en-directory/?title={}')
+    
+    @staticmethod
+    def runSearch(searchString, fullTable=False):
+        searchPage = webpage(mangaeden.searchTemplate.format(searchString))
+        searchList = searchPage.soup.find(class_=re.compile('Manga')).findParent('tbody').findAll('a')
+        newTable = []
+        for i in range(len(searchList)/2):
+            newTable.append(searchList[i*2:(i+1)*2])
+        if fullTable:
+            return newTable
+        
     class Series(mangaSite.Series):
         siteTemplate = 'http://www.perveden.com{}'
-        seriesTemplate = siteTemplate.format('/en-manga/{}/')
+        seriesString = '/en-manga/{}/' 
         soupArgs = {'name': 'a', 'class_': 'chapterLink'}
         
         class Chapter(mangaSite.Series.Chapter):

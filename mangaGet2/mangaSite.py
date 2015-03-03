@@ -11,8 +11,6 @@ mktime, strptime, localtime = time.mktime, time.strptime, time.localtime
 
 class mangaSite(webpage):
     class Series(webpage):
-        siteTemplate = NotImplemented
-        seriesTemplate  = NotImplemented    
         soupArgs = NotImplemented
         
         def __init__(self, series, extras=None):
@@ -26,6 +24,12 @@ class mangaSite(webpage):
         @memorize
         def chapters(self):
             return [self.Chapter(link['href'], self) for link in self.soup.findAll(**self.soupArgs)[::-1]]
+        @property
+        def seriesTemplate(self):
+            return self.siteTemplate.format(self.seriesString)
+        @property
+        def siteTemplate(self):
+            return
         @property
         @memorize
         def url(self):

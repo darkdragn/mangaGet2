@@ -120,9 +120,22 @@ def zipItUp(zipName, zipItArgs='w'):
             zipIt.write('/'.join([root, f]),'/'.join([root.split('/')[-1], f]))
     zipIt.close()
     
+def searchIt(site, searchString):
+    fullTable, nameLen = site.runSearch(searchString, True), 0
+    for i in fullTable:
+        if nameLen < len(i[0].text):
+            nameLen = len(i[0].text)
+    print('\t'.join(['{: <{}}'.format('Name', nameLen), '\tLatest Chapter', 'Date of update']))
+    for i in fullTable:
+        num = i[1].text.split('\non ')
+        numPrint = ''.join(['\t', '{: <14}'.format(num[0]), '\t', num[1]])
+        print '\t'.join([i[0].text, numPrint])
+    selection = raw_input('Please select one of the above: ')
+    return site.Series(fullTable[int(selection)-1][0]['href'].split('/')[-2])
+    
 def main(site, series, chap=None, extras=None, search=None):
     if search:
-      hold = site.runSearch(series)
+      hold = searchIt(site, series)
     else:
       hold = site.Series(series, extras)
     if chap:
