@@ -1,7 +1,6 @@
 #!/usr/bin/python2.7
 import argparse
 import cookielib
-import gc
 import mangaGet2.sites
 
 import mangaGet2.util as util
@@ -77,15 +76,13 @@ def downImage(page, dir=None):
 def downSeries(series):
     mkparentdir(series.title)
     total = len(series.chapters)
-    display('Series {name} contains {num} chapters.\n'.format(name=series.title, 
+    display('\nSeries {name} contains {num} chapters.\n'.format(name=series.title, 
                                                               num=total), 1)
     for cur, chap in enumerate(series.chapters, 1):
         display(' '.join(['\r[{:-<10}] Raw:'.format(('+' * (cur*10/total))),
                           '{cur}/{total}    Chapter Name: {name}'.format(cur=cur, total=total, 
                                                                          name=chap.title)]), 1, 1)
         downChapThreading(chap, series.title)
-        del chap
-        gc.collect()
     display('\n', 1)
     
 def listAll():
@@ -121,17 +118,19 @@ def zipItUp(zipName, zipItArgs='w'):
     zipIt.close()
     
 def searchIt(site, searchString):
-    fullTable, nameLen = site.runSearch(searchString, True), 0
+    fullTable, nameLen = site.runSearch(searchString), 0
+    bold, end = '\033[1m', '\033[0m'
     for i in fullTable:
-        if nameLen < len(i[0].text):
-            nameLen = len(i[0].text)
-    print('\t'.join(['{: <{}}'.format('Name', nameLen), '\tLatest Chapter', 'Date of update']))
-    for i in fullTable:
-        num = i[1].text.split('\non ')
-        numPrint = ''.join(['\t', '{: <14}'.format(num[0]), '\t', num[1]])
-        print '\t'.join([i[0].text, numPrint])
+        if nameLen < len(i['name']):
+            nameLen = len(i['name'])+3
+    display(bold, 0)
+    display('\t'.join(['\n{: <{}}'.format('Name', nameLen), 'Latest Chapter', 'Date of update']), 0)
+    display(''.join([end, '\n']), 0)              
+    for n, i in enumerate(fullTable, 1):
+        numPrint = ''.join(['{: <14}'.format(i['lChap']), '\t', i['dou'], '\n'])
+        display('\t'.join(['{}. {: <{}}'.format(n, i['name'], nameLen-3), numPrint]), 0)
     selection = raw_input('Please select one of the above: ')
-    return site.Series(fullTable[int(selection)-1][0]['href'].split('/')[-2])
+    return site.Series(fullTable[int(selection)-1]['serString'])
     
 def main(site, series, chap=None, extras=None, search=None):
     if search:

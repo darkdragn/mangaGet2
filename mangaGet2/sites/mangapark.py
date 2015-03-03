@@ -1,9 +1,28 @@
 import re
 from mangaGet2.mangaSite import mangaSite
-from mangaGet2.util import memorize
+import mangaGet2.util as util
+
+#Aliases
+memorize = util.memorize
+webpage  = util.webpage
 
 class mangapark(mangaSite):
     tags = ['mp', 'mangapark']
+    searchTemplate = 'http://www.mangapark.com/search?q={}'
+    
+    @staticmethod
+    def runSearch(searchString, fullTable=False):
+        searchPage = webpage(mangapark.searchTemplate.format(searchString))
+        searchTable = searchPage.soup.findAll('table')[1:]
+        dictTableList = []
+        for i in searchTable:
+            dou    = i.h3.i.text
+            lChap  = i.h3.b.text
+            name   = i.tbody.tr.td.a['title']
+            serString = i.tbody.tr.td.a['href'].split('/')[-1]
+            dictTableList.append({'name': name, 'lChap': lChap, 'dou': dou, 'serString': serString})
+        return dictTableList
+    
     class Series(mangaSite.Series):
         siteTemplate = 'http://www.mangapark.com{}'
         seriesTemplate = siteTemplate.format('/manga/{}/')
