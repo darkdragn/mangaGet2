@@ -9,13 +9,13 @@ time = util.time
 memorize, Util, webpage = util.memorize, util.Util, util.webpage
 mktime, strptime, localtime = time.mktime, time.strptime, time.localtime
 
-class mangaSite():
+class mangaSite(webpage):
     class Series(webpage):
         siteTemplate = NotImplemented
         seriesTemplate  = NotImplemented    
         soupArgs = NotImplemented
         
-        def __init__(self, series, extras='None'):
+        def __init__(self, series, extras=None):
             self.extras = extras
             self.series = series
             self.title = series
@@ -47,7 +47,7 @@ class mangaSite():
             def pages(self):
                 hold = [self.Page(self.link, self)]
                 for i in self.listThem:
-                    hold.append(self.page(i['href'], self))
+                    hold.append(self.Page(i['href'], self))
                 return hold
             @property
             def pages_len(self):
