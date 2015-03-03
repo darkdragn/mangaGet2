@@ -1,1 +1,1 @@
-__all__ = ['mangaeden', 'mangapark', 'pururin']
+__all__ = ['mangaeden', 'mangapark', 'perveden', 'pururin']
