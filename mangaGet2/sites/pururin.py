@@ -49,8 +49,7 @@ class pururin(mangaSite):
             def __init__(self, link, series=None):
                 self.link = link
                 self.series = series if series else pururin.Series
-                
-            @property
+
             def listThem(self):
                 thumb = webpage(self.url.replace('gallery', 'thumbs'))
                 return thumb.soup.find('ul', class_='thumblist').findAll('a')

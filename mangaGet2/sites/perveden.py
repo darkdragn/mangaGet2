@@ -31,10 +31,7 @@ class perveden(mangaSite):
         soupArgs = {'name': 'a', 'class_': 'chapterLink'}
         
         class Chapter(mangaSite.Series.Chapter):
-            @property
-            @memorize
-            def listThem(self):
-                return self.soup.find('div', class_="pagination ").findAll('a', text=re.compile('[0-9]'))[1:]
+            listThem = lambda self: self.soup.find('div', class_="pagination ").findAll('a', text=re.compile('[0-9]'))[1:]
             @property
             def title(self):
                 orig = self.url.split('/')[-3]

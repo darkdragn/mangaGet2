@@ -42,14 +42,11 @@ class mangapark(mangaSite):
                     self.version = int(i.split('=')[-1])-1
         
         class Chapter(mangaSite.Series.Chapter):
-            @property
-            @memorize
-            def listThem(self):
-                return self.soup.findAll('img', class_='img')
+            listThem = lambda self: self.soup.findAll('img', class_='img')
             @property
             @memorize
             def pages(self):
-                return [self.Page(i['src'].split('?')[0], self) for i in self.listThem]
+                return [self.Page(i['src'].split('?')[0], self) for i in self.listThem()]
             @property
             def title(self):
                 hold = self.url.split('/')[-2:]

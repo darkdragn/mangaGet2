@@ -108,7 +108,7 @@ def mkparentdir(dirName):
 def writeStats(chapter, dirIt):
     with open('/'.join([dirIt, '.stats']), 'w') as f:
         f.write('Link: {}\n'.format(chapter.url))
-        f.write('Total: {}'.format(chapter.pages_len))
+        f.write('Total: {}'.format(len(chapter.pages)))
 
 def zipItUp(zipName, zipItArgs='w'):
     zipIt = ZipFile(zipName, zipItArgs)

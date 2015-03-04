@@ -28,9 +28,6 @@ class mangaSite(webpage):
         def seriesTemplate(self):
             return self.siteTemplate.format(self.seriesString)
         @property
-        def siteTemplate(self):
-            return
-        @property
         @memorize
         def url(self):
             return self.seriesTemplate.format(self.series)
@@ -41,21 +38,14 @@ class mangaSite(webpage):
             def __init__(self, link, series):
                 self.link = link
                 self.series = series
-                
-            #def pages(self):
-                #yield self.Page(self.link, self)
-                #for i in self.listThem:
-                    #yield self.Page(i['href'], self)
+            
             @property
             @memorize
             def pages(self):
                 hold = [self.Page(self.link, self)]
-                for i in self.listThem:
+                for i in self.listThem():
                     hold.append(self.Page(i['href'], self))
                 return hold
-            @property
-            def pages_len(self):
-                return len(self.listThem)+1
             @property
             def title(self):
                 return 

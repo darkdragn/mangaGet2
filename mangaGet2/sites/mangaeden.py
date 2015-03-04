@@ -26,7 +26,6 @@ class mangaeden(mangaSite):
         return dictTableList
       
     class Series(mangaSite.Series):
-        #siteTemplate = mangaeden.siteTemplate
         seriesString = '/en-manga/{}/'
         soupArgs = {'name': 'a', 'class_': 'chapterLink'}
         
@@ -35,10 +34,7 @@ class mangaeden(mangaSite):
             return mangaeden.siteTemplate
         
         class Chapter(mangaSite.Series.Chapter):
-            @property
-            @memorize
-            def listThem(self):
-                return self.soup.find('div', class_="pagination ").findAll('a', text=re.compile('[0-9]'))[1:]
+            listThem = lambda self: self.soup.find('div', class_="pagination ").findAll('a', text=re.compile('[0-9]'))[1:]
             @property
             def title(self):
                 orig = self.url.split('/')[-3]
