@@ -15,7 +15,7 @@ from zipfile import ZipFile
 importClass = lambda i: getattr(__import__('mangaGet2.sites.{}'.format(i), fromlist=[i]), i)
 sites = [importClass(i) for i in mangaGet2.sites.__all__]
 
-def display(message, level, clrLine=False):
+def display(message, level=0, clrLine=False):
     if clrLine:
         try:
             l = int(subprocess.check_output(['tput', 'cols']))
@@ -48,8 +48,6 @@ def downChapThreading(chapter, dirIt=None):
     writeStats(chapter, baseName)
     tPages = util.threadIt(downImage, chapter.pages, baseName)
     tPages.run()
-    #for i in chapter.pages:
-    #    downImage(i, baseName)
     os.remove('/'.join([baseName, '.stats']))
     zipItUp(zipName)
     shutil.rmtree(baseName)
@@ -77,13 +75,13 @@ def downSeries(series):
     mkparentdir(series.title)
     total = len(series.chapters)
     display('\nSeries {name} contains {num} chapters.\n'.format(name=series.title, 
-                                                              num=total), 1)
+                                                                num=total))
     for cur, chap in enumerate(series.chapters, 1):
         display(' '.join(['\r[{:-<10}] Raw:'.format(('+' * (cur*10/total))),
                           '{cur}/{total}    Chapter Name: {name}'.format(cur=cur, total=total, 
                                                                          name=chap.title)]), 1, 1)
         downChapThreading(chap, series.title)
-    display('\n', 1)
+    display('\n')
     
 def listAll():
     print('{: <12}{}\n{: <12}{}'.format('Sites', 'Tags', '-----', '----'))
@@ -121,33 +119,27 @@ def searchIt(site, searchString):
     fullTable, nameLen = site.runSearch(searchString), 0
     bold, end = '\033[1m', '\033[0m'
     for i in fullTable:
-        if nameLen < len(i['name']):
-            nameLen = len(i['name'])+3
-    display(bold, 0)
-    display('\t'.join(['\n{: <{}}'.format('Name', nameLen), 'Latest Chapter', 'Date of update']), 0)
-    display(''.join([end, '\n']), 0)              
+        nameLen = len(i['name']) if len(i['name'])>nameLen else nameLen
+    display('\t'.join(['\n{}{: <{}}'.format(bold, 'Name', nameLen+3), 'Latest Chapter', 
+                       'Date of update{}\n'.format(end)]))             
     for n, i in enumerate(fullTable, 1):
         numPrint = ''.join(['{: <14}'.format(i['lChap']), '\t', i['dou'], '\n'])
-        display('\t'.join(['{}. {: <{}}'.format(n, i['name'], nameLen-3), numPrint]), 0)
+        try:
+            disPrint = '\t'.join(['{}. {: <{}}'.format(n, i['name'], nameLen), numPrint])
+        except:
+            lenName  = nameLen + (len(i['name'].encode('utf-16')[2:])/2)
+            disPrint = '\t'.join(['{}. {: <{}}'.format(n, i['name'].encode('utf-16')[2:],
+                                                lenName), numPrint.encode('utf-16')[2:]])
+        display(disPrint)
     selection = raw_input('Please select one of the above: ')
     return site.Series(fullTable[int(selection)-1]['serString'])
     
 def main(site, series, chap=None, extras=None, search=None):
-    if search:
-      hold = searchIt(site, series)
-    else:
-      hold = site.Series(series, extras)
-    if chap:
-        downChapThreading(hold.chapters[chap-1])
-    else:
-        downSeries(hold)
+    hold = searchIt(site, series) if search else site.Series(series, extras)
+    downChapThreading(hold.chapters[chap-1]) if chap else downSeries(hold)
 
     
 if __name__ == '__main__':
-    #sitesSupported = str()
-    #for i in sites:
-    #    sitesSupported += '\t{}: {} or {}'.format(i.__module__.split('.')[-1], 
-    #                                              ', '.join(i.tags[:-1]), i.tags[-1])
     parser=argparse.ArgumentParser('MangaGet2 Cli')
     parser.add_argument('series', action='store', metavar='series', nargs='?', 
                         help='Unique identifier for the series to rip.')
@@ -156,7 +148,7 @@ if __name__ == '__main__':
     parser.add_argument('-s', action='store', dest='site', default='mp', 
                         metavar='site', help='Specify a site.')
     parser.add_argument('-se', action='store_true', dest='search', default=False,
-			help='Search a site.')
+                        help='Search a site.')
     parser.add_argument('-sl', action='store_true', dest='list', 
                         help='List all supported sites.')
     parser.add_argument('-x', action='store', dest='extras', default=None, 
@@ -164,9 +156,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', action='store', dest='verb', type=int, default=1, 
                         help='Specify a verbosity.', metavar='verbosity')
     
-    results = parser.parse_args()
-    cookie=None
-    args = {}
+    results, args = parser.parse_args(), {}
     if results.list:
         listAll()
     if not results.list and not results.series:
@@ -177,10 +167,6 @@ if __name__ == '__main__':
             if results.site == tag:
                 args.update({'site': i})
                 break
-    args.update({'search': results.search})
-    args.update({'series': results.series})
-    if results.chapter:
-        args.update({'chap': results.chapter})
-    if results.extras:
-        args.update({'extras': results.extras})
+    args.update({'search': results.search, 'series': results.series,
+                 'chap': results.chapter,  'extras': results.extras})
     main(**args)
