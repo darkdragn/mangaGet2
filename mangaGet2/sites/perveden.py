@@ -13,15 +13,19 @@ class perveden(mangaSite):
     
     @staticmethod
     def runSearch(searchString, fullTable=False):
-        searchPage = webpage(mangaeden.searchTemplate.format(searchString))
-        searchList = searchPage.soup.find(class_=re.compile('Manga')).findParent('tbody').findAll('a')
+        searchPage = webpage(perveden.searchTemplate.format(searchString))
+        searchList = searchPage.soup.find(class_=re.compile('Manga')).findParent('tbody').findAll('tr')
         dictTableList, newTable = [], []
-        for i in range(len(searchList)/2):
-            newTable.append(searchList[i*2:(i+1)*2])
-        for i in newTable:
-            lChap, dou  = i[1].text.split('\non ')
-            name = i[0].text
-            serString = i[0]['href'].split('/')[-2]
+        if fullTable:
+            return searchList
+        for i in searchList:
+            them = i.findAll('td')
+            try:
+                lChap, dou  = them[3].text.strip('\n').split('\non ')
+            except:
+                lChap, dou = them[3].text.strip('\n'), ''
+            name = them[0].text
+            serString = them[0].a['href'].split('/')[-2]
             dictTableList.append({'name': name, 'lChap': lChap, 'dou': dou, 'serString': serString})
         return dictTableList
         
