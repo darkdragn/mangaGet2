@@ -77,7 +77,7 @@ def downSeries(series):
     display('\nSeries {name} contains {num} chapters.\n'.format(name=series.title, 
                                                                 num=total))
     for cur, chap in enumerate(series.chapters, 1):
-        display(' '.join(['\r[{:-<10}] Raw:'.format(('+' * (cur*10/total))),
+        display(' '.join(['\r[{:-<10}] Raw:'.format(('+' * ((cur-1)*10/total))),
                           '{cur}/{total}    Chapter Name: {name}'.format(cur=cur, total=total, 
                                                                          name=chap.title)]), 1, 1)
         downChapThreading(chap, series.title)
@@ -132,10 +132,10 @@ def searchIt(site, searchString):
                                                 lenName), numPrint.encode('utf-16')[2:]])
         display(disPrint)
     selection = raw_input('Please select one of the above: ')
-    return site.Series(fullTable[int(selection)-1]['serString'])
+    return site.Series(fullTable[int(selection)-1]['serString'], site=site)
     
 def main(site, series, chap=None, extras=None, search=None):
-    hold = searchIt(site, series) if search else site.Series(series, extras)
+    hold = searchIt(site, series) if search else site.Series(series, extras, site)
     downChapThreading(hold.chapters[chap-1]) if chap else downSeries(hold)
 
     

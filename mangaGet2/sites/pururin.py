@@ -3,18 +3,15 @@ from mangaGet2.mangaSite import mangaSite
 from mangaGet2.util import memorize, webpage
 
 class pururin(mangaSite):
+    siteTemplate = 'http://www.pururin.com{}'
     tags = ['p', 'pururin']
     class Series(mangaSite.Series):
-        siteTemplate = 'http://www.pururin.com{}'
-        seriesTemplate = siteTemplate.format('/browse/{}')
+        seriesString = '/browse/{}'
         soupArgs = {'name': 'div', 'class_': 'stream'}
         
         def __init__(self, series, extras='None'):
             self.series = series
-            if extras:
-                self.runExtras(extras)
-            else:
-                self.title = series.split('/')[-1].split('.')[0]
+            self.title = self.runExtras(extras) if extras else series.split('/')[-1].split('.')[0]
             self.title = ''.join([ch for ch in self.title if ord(ch)<128])
         
         def listPage(self, url):
@@ -28,6 +25,7 @@ class pururin(mangaSite):
                 return chptrs
             except:
                 return chptrs
+        
         def runExtras(self, extras):
             if extras.__class__() == '':
                 testThem = [extras]
@@ -37,9 +35,9 @@ class pururin(mangaSite):
                 if 'search' in i:
                     repls = { ' ': '%20', '-': '%20' }
                     self.seriesTemplate = self.siteTemplate.format('/search?q={}')
-                    self.title = self.series.replace(' ', '-')
                     for i in repls.items():
                         self.series = self.series.replace(*i)
+                    return self.series.replace(' ', '-')
         @property
         @memorize
         def chapters(self):

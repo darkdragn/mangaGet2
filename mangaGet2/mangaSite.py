@@ -13,12 +13,14 @@ class mangaSite(webpage):
     class Series(webpage):
         soupArgs = NotImplemented
         
-        def __init__(self, series, extras=None):
+        def __init__(self, series, extras=None, site=None):
             self.extras = extras
             self.series = series
             self.title = series
             if self.extras:
                 self.runExtras()
+            if site:
+                self.siteTemplate = site.siteTemplate
         
         @property
         @memorize
@@ -77,8 +79,7 @@ class mangaSite(webpage):
                 
                 def __init__(self, url, nameIt=None):
                     self.nameIt=nameIt
-                    self.url = url
-                    self.urlObj = Util.getUrl(self.url)
+                    self.urlObj = Util.getUrl(url)
                     self.meta = self.urlObj.info()
                     self.data = self.dataGen
                     

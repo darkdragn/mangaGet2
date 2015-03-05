@@ -7,8 +7,9 @@ memorize = util.memorize
 webpage  = util.webpage
 
 class mangapark(mangaSite):
-    tags = ['mp', 'mangapark']
     searchTemplate = 'http://www.mangapark.com/search?q={}'
+    siteTemplate = 'http://www.mangapark.com{}'
+    tags = ['mp', 'mangapark']
     
     @staticmethod
     def runSearch(searchString, fullTable=False):
@@ -24,8 +25,7 @@ class mangapark(mangaSite):
         return dictTableList
     
     class Series(mangaSite.Series):
-        siteTemplate = 'http://www.mangapark.com{}'
-        seriesTemplate = siteTemplate.format('/manga/{}/')
+        seriesString = '/manga/{}/'
         soupArgs = {'name': 'div', 'class_': 'stream'}
         version = 0
         
@@ -35,8 +35,6 @@ class mangapark(mangaSite):
             return [self.Chapter(tag.find(text='all').parent['href'], self) 
                     for tag in self.soup.findAll(**self.soupArgs)[self.version].findAll('em')[::-1]]
         def runExtras(self):
-            #if type(self.extras) == type(''):
-                #self.extras = [self.extras]
             for i in self.extras.split(','):
                 if 'ver' in i:
                     self.version = int(i.split('=')[-1])-1
