@@ -8,10 +8,10 @@ import re
 import socket
 import time
 
-import threading 
-
-from HTMLParser import HTMLParser as parser
 from bs4 import BeautifulSoup as bs4
+from HTMLParser import HTMLParser as parser
+from Queue import Queue
+from threading import Thread
 #from BeautifulSoup import BeautifulSoup as bs3
 
 try:
@@ -103,19 +103,20 @@ class webpage():
         
 
 class threadIt():
-    def __init__(self, meth, inIt, arg):
-        self.meth, self.inIt, self.arg = meth, inIt, arg
+    def __init__(self, meth, objs, arg):
+        self.meth, self.objs, self.arg = meth, objs, arg
+        self.queue = Queue()
+    def downPage(self):
+        while True:
+            page = self.queue.get()
+            self.meth(page, self.arg)
+            self.queue.task_done()
     
     def run(self):
-        threads = []
-        for i in self.inIt:
-            while threading.activeCount() > 9:
-                time.sleep(.15)
-            threads.append(threading.Thread(target=self.meth, args=(i, self.arg)))
-            threads[-1].daemon = True
-            threads[-1].start()
-        # Wait for the last thread to finish
-        for i in threads:
-            if i.isAlive:
-                i.join()
-                
+        for i in xrange(0, 9):
+            worker = Thread(target = self.downPage)
+            worker.setDaemon(True)
+            worker.start()
+        for i in self.objs:
+            self.queue.put(i)
+        self.queue.join()
