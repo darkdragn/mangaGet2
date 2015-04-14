@@ -3,13 +3,13 @@ from mangaGet2.mangaSite import mangaSite
 from mangaGet2.util import memorize, webpage
 
 class pururin(mangaSite):
-    siteTemplate = 'http://www.pururin.com{}'
     tags = ['p', 'pururin']
     class Series(mangaSite.Series):
         seriesString = '/browse/{}'
+        siteTemplate = 'http://www.pururin.com{}'
         soupArgs = {'name': 'div', 'class_': 'stream'}
         
-        def __init__(self, series, extras='None'):
+        def __init__(self, series, extras=None, site=None):
             self.series = series
             self.title = self.runExtras(extras) if extras else series.split('/')[-1].split('.')[0]
             self.title = ''.join([ch for ch in self.title if ord(ch)<128])
@@ -31,13 +31,14 @@ class pururin(mangaSite):
                 testThem = [extras]
             elif extras.__class__() == []:
                 testThem = extras
+            hold = self.series
             for i in testThem:
                 if 'search' in i:
                     repls = { ' ': '%20', '-': '%20' }
                     self.seriesTemplate = self.siteTemplate.format('/search?q={}')
                     for i in repls.items():
                         self.series = self.series.replace(*i)
-                    return self.series.replace(' ', '-')
+                    return hold.replace(' ', '-')
         @property
         @memorize
         def chapters(self):
@@ -47,7 +48,8 @@ class pururin(mangaSite):
             def __init__(self, link, series=None):
                 self.link = link
                 self.series = series if series else pururin.Series
-
+            
+            @property
             def listThem(self):
                 thumb = webpage(self.url.replace('gallery', 'thumbs'))
                 return thumb.soup.find('ul', class_='thumblist').findAll('a')
