@@ -19,8 +19,8 @@ class mangapark(mangaSite):
         for i in searchTable:
             dou    = i.h3.i.text
             lChap  = i.h3.b.text
-            name   = i.tbody.tr.td.a['title']
-            serString = i.tbody.tr.td.a['href'].split('/')[-1]
+            name   = i.tr.td.a['title']
+            serString = i.tr.td.a['href'].split('/')[-1]
             dictTableList.append({'name': name, 'lChap': lChap, 'dou': dou, 'serString': serString})
         return dictTableList
     
