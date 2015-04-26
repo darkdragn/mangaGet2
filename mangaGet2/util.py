@@ -115,8 +115,9 @@ class Util():
                         raise RuntimeError('Unknown HTTP Encoding returned')
             except urllib2.URLError, Exception:
                 if (maxRetries == 0):
+                    raise
                     print('\nUnable to access the internet...')
-                    os._exit(1)
+                    #os._exit(1)
                     return
                 else:
                     # random dist. for further protection against anti-leech
@@ -150,7 +151,6 @@ class webpage():
     @memorize
     def source(self):
         return str(self.urlObj.read())
-    @property 
-    @memorize
+    @property
     def urlObj(self):
         return Util.getUrl(self.url, self.cookie)

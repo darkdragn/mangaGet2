@@ -21,11 +21,13 @@ def sigIntHandler(signal, frame):
     sys.exit()
     
 class main():
-    def __init__(self, site, series, chap=None, extras=None, search=None):
+    def __init__(self, site, series, chap=None, chapLast = None, 
+                 extras=None, search=None, top=None):
         self.site, self.seriesStr = site, series
+        self.chapl, self.top = chapLast, top
         self.extras = extras
         self.series = self.searchIt() if search else site.Series(series, extras, site)
-        downChapThreading(self.series.chapters[chap-1]) if chap else self.downSeries()
+        downChapThread(self.series.chapters[chap-1]) if chap else self.downSeries()
     
     @staticmethod
     def downImage(page, dir=None):
@@ -46,7 +48,7 @@ class main():
                     del img
                 if os.path.exists(writeName):
                     os.remove(writeName)
-    def downChapThreading(self, chapter, dirIt=None):
+    def downChapThread(self, chapter, dirIt=None):
         baseName = '/'.join([dirIt, chapter.title]) if dirIt else chapter.title
         zipName = '.'.join([baseName, 'cbz'])
         if os.path.exists(zipName):
@@ -59,15 +61,17 @@ class main():
         shutil.rmtree(baseName)
     def downSeries(self):
         title = self.series.title
-        mkparentdir(title)
-        total = len(self.series.chapters)
+        if self.top:
+            mkparentdir(title)
+        total = self.chapl if self.chapl else len(self.series.chapters)
         display('\nSeries {name} contains {num} chapters.\n'.format(name=title, 
                                                                     num=total))
-        for cur, chap in enumerate(self.series.chapters, 1):
+        chapList = self.series.chapters[-self.chapl:] if self.chapl else self.series.chapters
+        for cur, chap in enumerate(chapList, 1):
             ticker = '\r[{:-<10}] Raw:'.format(('+' * ((cur-1)*10/total)))
             status = '{}/{}    Chapter Name: {}'.format(cur, total, chap.title)
             display(' '.join([ticker, status]), 1, 1)
-            self.downChapThreading(chap, title)
+            self.downChapThread(chap, title if self.top else None)
         display('\n')
     def searchIt(self):
         fullTable, nameLen = self.site.runSearch(self.seriesStr), 0
@@ -96,9 +100,13 @@ if __name__ == '__main__':
                         help='Unique identifier for the series to rip.')
     parser.add_argument('-c', action='store', dest='chapter', default=None, 
                         metavar='chapter', type=int, help='Specify a single chapter.')
+    parser.add_argument('-l', action='store', dest='chapLast', default=None, 
+                        metavar='chapLast', type=int, help='Specify a number of chapters, latest back.')
+    parser.add_argument('-n', action='store_false', dest='top',
+			            help='Disable top level folder.')
     parser.add_argument('-s', action='store', dest='site', default='mp', 
                         metavar='site', help='Specify a site.')
-    parser.add_argument('-se', action='store_true', dest='search', default=False,
+    parser.add_argument('-se', action='store_false', dest='search', default=False,
                         help='Search a site.')
     parser.add_argument('-sl', action='store_true', dest='list', 
                         help='List all supported sites.')
@@ -106,7 +114,7 @@ if __name__ == '__main__':
                         metavar='extras', help='Specify extra options.')
     parser.add_argument('-v', action='store', dest='verb', type=int, default=1, 
                         help='Specify a verbosity.', metavar='verbosity')
-    
+    parser.set_defaults(top=True)
     results, args = parser.parse_args(), {}
     signal.signal(signal.SIGINT, sigIntHandler)
     if results.list:
@@ -120,5 +128,6 @@ if __name__ == '__main__':
                 args.update({'site': i})
                 break
     args.update({'search': results.search, 'series': results.series,
-                 'chap': results.chapter,  'extras': results.extras})
+                 'chap': results.chapter,  'extras': results.extras,
+                 'chapLast': results.chapLast, 'top': results.top})
     main(**args)

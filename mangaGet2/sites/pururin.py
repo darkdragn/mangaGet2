@@ -1,6 +1,6 @@
 import re
 from mangaGet2.mangaSite import mangaSite
-from mangaGet2.util import memorize, webpage
+from mangaGet2.util import bs4, memorize, webpage
 
 class pururin(mangaSite):
     tags = ['p', 'pururin']
@@ -11,17 +11,16 @@ class pururin(mangaSite):
         
         def __init__(self, series, extras=None, site=None):
             self.series = series
-            self.title = self.runExtras(extras) if extras else series.split('/')[-1].split('.')[0]
-            self.title = ''.join([ch for ch in self.title if ord(ch)<128])
+            self.title  = self.runExtras(extras) if extras else series.split('/')[-1].split('.')[0]
+            self.title  = ''.join([ch for ch in self.title if ord(ch)<128])
         
         def listPage(self, url):
-            soup = webpage(url).soup
+            soup = bs4(webpage(url).urlObj.read())
             chptrs = [self.Chapter(tag['href'], self) 
                       for tag in soup.find('ul', class_='gallery-list').findAll('a')]
             try:
                 nextPage = soup.find('div', class_='pager jumper').find('a', class_='link-next')['href']
-                for i in self.listPage(self.siteTemplate.format(nextPage)):
-                    chptrs.append(i)
+                chptrs.extend(self.listPage(self.siteTemplate.format(nextPage)))
                 return chptrs
             except:
                 return chptrs
@@ -39,6 +38,10 @@ class pururin(mangaSite):
                     for i in repls.items():
                         self.series = self.series.replace(*i)
                     return hold.replace(' ', '-')
+                if 'single' in i:
+                    link = ''.join(['/gallery/', self.series])
+                    self.chapters = [self.Chapter(link, self)]
+                    return self.series.split('/')[-1].split('.')[0]
         @property
         @memorize
         def chapters(self):

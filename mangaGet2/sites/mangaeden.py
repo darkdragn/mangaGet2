@@ -31,10 +31,18 @@ class mangaeden(mangaSite):
       
     class Series(mangaSite.Series):
         seriesString = '/en-manga/{}/'
+        siteTemplate = 'http://www.mangaeden.com{}'
         soupArgs = {'name': 'a', 'class_': 'chapterLink'}
         
         class Chapter(mangaSite.Series.Chapter):
-            listThem = lambda self: self.soup.find('div', class_="pagination ").findAll('a', text=re.compile('[0-9]'))[1:]
+            listThem = lambda self: self.soup.find_all('select', class_="selected")[1].find_all('option')
+            @property
+            @memorize
+            def pages(self):
+                hold = [self.Page(self.link, self)]
+                for i in self.listThem():
+                    hold.append(self.Page(i['value'], self))
+                return hold
             @property
             def title(self):
                 orig = self.url.split('/')[-3]
