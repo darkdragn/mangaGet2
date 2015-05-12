@@ -76,17 +76,17 @@ class threadIt():
         self.queue = Queue()
     
     def downPage(self):
-        while True:
+        while not self.queue.empty():
             page = self.queue.get()
             self.meth(page, self.arg)
             self.queue.task_done()
     def run(self):
+        for i in self.objs:
+            self.queue.put(i)
         for i in range(10):
             worker = Thread(target = self.downPage)
             worker.setDaemon(True)
             worker.start()
-        for i in self.objs:
-            self.queue.put(i)
         self.queue.join()
 
 class Util():
@@ -115,7 +115,6 @@ class Util():
                         raise RuntimeError('Unknown HTTP Encoding returned')
             except urllib2.URLError, Exception:
                 if (maxRetries == 0):
-                    raise
                     print('\nUnable to access the internet...')
                     #os._exit(1)
                     return
