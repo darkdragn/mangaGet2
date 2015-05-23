@@ -116,7 +116,6 @@ class Util():
             except urllib2.URLError, Exception:
                 if (maxRetries == 0):
                     print('\nUnable to access the internet...')
-                    #os._exit(1)
                     return
                 else:
                     # random dist. for further protection against anti-leech

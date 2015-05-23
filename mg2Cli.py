@@ -36,6 +36,7 @@ class main():
             writeName = '/'.join([dir, writeName])
         if os.path.exists(writeName):
             return
+        tries = 0
         while True:
             try:
                 img = page.image
@@ -48,6 +49,9 @@ class main():
                     del img
                 if os.path.exists(writeName):
                     os.remove(writeName)
+                tries += 1
+                if tries >= 3:
+                    break
     def downChapThread(self, chapter, dirIt=None):
         baseName = '/'.join([dirIt, chapter.title]) if dirIt else chapter.title
         zipName = '.'.join([baseName, 'cbz'])
@@ -106,7 +110,7 @@ if __name__ == '__main__':
 			            help='Disable top level folder.')
     parser.add_argument('-s', action='store', dest='site', default='mp', 
                         metavar='site', help='Specify a site.')
-    parser.add_argument('-se', action='store_false', dest='search', default=False,
+    parser.add_argument('-se', action='store_true', dest='search', default=False,
                         help='Search a site.')
     parser.add_argument('-sl', action='store_true', dest='list', 
                         help='List all supported sites.')
