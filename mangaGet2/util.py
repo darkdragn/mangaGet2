@@ -80,10 +80,10 @@ class threadIt():
             page = self.queue.get()
             self.meth(page, self.arg)
             self.queue.task_done()
-    def run(self):
+    def run(self, num=10):
         for i in self.objs:
             self.queue.put(i)
-        for i in range(10):
+        for i in range(num):
             worker = Thread(target = self.downPage)
             worker.setDaemon(True)
             worker.start()

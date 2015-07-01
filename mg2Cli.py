@@ -22,10 +22,10 @@ def sigIntHandler(signal, frame):
     
 class main():
     def __init__(self, site, series, chap=None, chapLast = None, 
-                 extras=None, search=None, top=None):
+                 extras=None, search=None, top=None, thread=None):
         self.site, self.seriesStr = site, series
         self.chapl, self.top = chapLast, top
-        self.extras = extras
+        self.extras, self.thread = extras, thread
         self.series = self.searchIt() if search else site.Series(series, extras, site)
         downChapThread(self.series.chapters[chap-1]) if chap else self.downSeries()
     
@@ -55,7 +55,7 @@ class main():
             return
         mkparentdir(baseName)
         writeStats(chapter, baseName)
-        threadIt(self.downImage, chapter.pages, baseName).run()
+        threadIt(self.downImage, chapter.pages, baseName).run(self.thread)
         os.remove('/'.join([baseName, '.stats']))
         zipItUp(zipName)
         shutil.rmtree(baseName)
@@ -110,6 +110,8 @@ if __name__ == '__main__':
                         help='Search a site.')
     parser.add_argument('-sl', action='store_true', dest='list', 
                         help='List all supported sites.')
+    parser.add_argument('-t', action='store', dest='thread', default=10, 
+                        metavar='thread', type=int, help='Specify the number of threads allowed to run at once.' )
     parser.add_argument('-x', action='store', dest='extras', default=None, 
                         metavar='extras', help='Specify extra options.')
     parser.add_argument('-v', action='store', dest='verb', type=int, default=1, 
@@ -129,5 +131,6 @@ if __name__ == '__main__':
                 break
     args.update({'search': results.search, 'series': results.series,
                  'chap': results.chapter,  'extras': results.extras,
-                 'chapLast': results.chapLast, 'top': results.top})
+                 'chapLast': results.chapLast, 'top': results.top,
+                 'thread': results.thread})
     main(**args)
