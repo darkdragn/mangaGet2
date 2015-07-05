@@ -113,9 +113,10 @@ class Util():
                         ret = gzipper
                     else:
                         raise RuntimeError('Unknown HTTP Encoding returned')
-            except urllib2.URLError, Exception:
+            except (urllib2.URLError) as e:
                 if (maxRetries == 0):
                     print('\nUnable to access the internet...')
+                    raise
                     #os._exit(1)
                     return
                 else:

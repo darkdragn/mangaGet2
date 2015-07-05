@@ -31,23 +31,26 @@ class main():
     
     @staticmethod
     def downImage(page, dir=None):
-        writeName = page.name
-        if dir: 
-            writeName = '/'.join([dir, writeName])
-        if os.path.exists(writeName):
-            return
         while True:
             try:
+                writeName = page.name
+                if dir: 
+                    writeName = '/'.join([dir, writeName])
+                if os.path.exists(writeName):
+                    return
                 img = page.image
                 if img.data:
                     with open(writeName, 'wb') as f:
                         f.write(img.data)
                 break
+            except AttributeError as ae:
+                break
             except:
                 if 'img' in locals():
                     del img
-                if os.path.exists(writeName):
-                    os.remove(writeName)
+                if hasattr('local', 'writeName'):
+                    if os.path.exists(writeName):
+                        os.remove(writeName)
     def downChapThread(self, chapter, dirIt=None):
         baseName = '/'.join([dirIt, chapter.title]) if dirIt else chapter.title
         zipName = '.'.join([baseName, 'cbz'])
@@ -106,7 +109,7 @@ if __name__ == '__main__':
 			            help='Disable top level folder.')
     parser.add_argument('-s', action='store', dest='site', default='mp', 
                         metavar='site', help='Specify a site.')
-    parser.add_argument('-se', action='store_false', dest='search', default=False,
+    parser.add_argument('-se', action='store_true', dest='search', default=False,
                         help='Search a site.')
     parser.add_argument('-sl', action='store_true', dest='list', 
                         help='List all supported sites.')
