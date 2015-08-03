@@ -44,10 +44,8 @@ class mangaSite(webpage):
             @property
             @memorize
             def pages(self):
-                hold = [self.Page(self.link, self)]
-                for i in self.listThem():
-                    hold.append(self.Page(i['href'], self))
-                return hold
+                return [self.Page(self.pageCut(i), self) 
+                        for i in self.listThem()]
             @property
             def title(self):
                 return 

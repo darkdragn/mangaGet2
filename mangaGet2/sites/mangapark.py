@@ -41,10 +41,19 @@ class mangapark(mangaSite):
         
         class Chapter(mangaSite.Series.Chapter):
             listThem = lambda self: self.soup.findAll('img', class_='img')
+            #pageCut  = lambda self, i: i['data-original']
+            
+            def pageCut(self, curString):
+                if 'blank' in curString['src']:
+                    return curString['data-original']
+                else:
+                    return curString['src']
             @property
             @memorize
             def pages(self):
-                return [self.Page(i['src'].split('?')[0], self) for i in self.listThem()]
+                return [self.Page(self.pageCut(i), self) 
+                        for i in self.listThem()]
+                        
             @property
             def title(self):
                 hold = self.url.split('/')[-2:]

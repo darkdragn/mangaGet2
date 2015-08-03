@@ -48,6 +48,7 @@ class pururin(mangaSite):
             return self.listPage(self.url)
         
         class Chapter(mangaSite.Series.Chapter):
+            pageCut = lambda self: self['href']
             def __init__(self, link, series=None):
                 self.link = link
                 self.series = series if series else pururin.Series
@@ -56,10 +57,6 @@ class pururin(mangaSite):
             def listThem(self):
                 thumb = webpage(self.url.replace('gallery', 'thumbs'))
                 return thumb.soup.find('ul', class_='thumblist').findAll('a')
-            @property
-            @memorize
-            def pages(self):
-                return [self.Page(i['href'], self) for i in self.listThem]
             @property
             @memorize
             def title(self):
