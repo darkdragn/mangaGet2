@@ -74,4 +74,5 @@ class mangapark(mangaSite):
                 @property
                 def name(self):
                     hold = self.imgUrl.split('/')[-1].split('.')
-                    return '.'.join(['{:0>3}'.format(hold[0]), hold[1]])
+                    return '.'.join(['{:0>3}'.format(hold[0]), 
+                                                     hold[1].split('?')[0]])
