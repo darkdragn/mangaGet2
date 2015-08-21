@@ -35,6 +35,11 @@ def display(message, level=0, clrLine=False):
     sys.stdout.write(message)
     sys.stdout.flush()
 
+def loadCookie(fileName):
+    cookies = cookielib.MozillaCookieJar(filename=fileName)
+    cookies.load()
+    #handler = urllib2.HTTPHandler(debuglevel=1)
+    return [urllib2.HTTPCookieProcessor(cookies)]
 # :SEE: http://wiki.python.org/moin/PythonDecoratorLibrary/#Alternate_memoize_as_nested_functions
 def memorize(obj):
     cache = obj.cache = {}

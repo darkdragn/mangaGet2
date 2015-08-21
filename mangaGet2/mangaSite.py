@@ -92,4 +92,3 @@ class mangaSite(webpage):
                             del self.urlObj
                             self.urlObj = Util.getUrl(self.url)
                     return data
-                

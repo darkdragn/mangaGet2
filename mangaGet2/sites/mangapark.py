@@ -21,7 +21,8 @@ class mangapark(mangaSite):
             lChap  = i.h3.b.text
             name   = i.tr.td.a['title']
             serString = i.tr.td.a['href'].split('/')[-1]
-            dictTableList.append({'name': name, 'lChap': lChap, 'dou': dou, 'serString': serString})
+            dictTableList.append({'name': name, 'lChap': lChap, 
+                                  'dou': dou, 'serString': serString})
         return dictTableList
     
     class Series(mangaSite.Series):
@@ -40,19 +41,13 @@ class mangapark(mangaSite):
                     self.version = int(i.split('=')[-1])-1
         
         class Chapter(mangaSite.Series.Chapter):
-            listThem = lambda self: self.soup.findAll('img', class_='img')
-            #pageCut  = lambda self, i: i['data-original']
+            def listThem(self): return self.soup.findAll('img', class_='img')
             
             def pageCut(self, curString):
                 if 'blank' in curString['src']:
                     return curString['data-original']
                 else:
                     return curString['src']
-            @property
-            @memorize
-            def pages(self):
-                return [self.Page(self.pageCut(i), self) 
-                        for i in self.listThem()]
                         
             @property
             def title(self):
