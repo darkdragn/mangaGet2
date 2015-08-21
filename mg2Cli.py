@@ -13,7 +13,8 @@ sites = [importClass(i) for i in mangaGet2.sites.__all__]
 def listAll():
     print('{: <12}{}\n{: <12}{}'.format('Sites', 'Tags', '-----', '----'))
     for num, i in enumerate(sites):
-        print('{: <12}{}'.format(''.join([mangaGet2.sites.__all__[num], ':']), ', '.join(i.tags)))
+        print('{: <12}{}'.format(''.join([mangaGet2.sites.__all__[num], ':']), 
+              ', '.join(i.tags)))
     sys.exit()
 
 def sigIntHandler(signal, frame):
@@ -95,26 +96,30 @@ class main():
                 disPrint = '\t'.join([name, num])
             display(disPrint)
         selection = raw_input('Please select one of the above: ')
-        return self.site.Series(fullTable[int(selection)-1]['serString'], site=self.site)
+        return self.site.Series(fullTable[int(selection)-1]['serString'], 
+                                site=self.site)
         
 if __name__ == '__main__':
     parser=argparse.ArgumentParser('MangaGet2 Cli')
     parser.add_argument('series', action='store', metavar='series', nargs='?', 
                         help='Unique identifier for the series to rip.')
     parser.add_argument('-c', action='store', dest='chapter', default=None, 
-                        metavar='chapter', type=int, help='Specify a single chapter.')
+                        metavar='chapter', type=int, 
+                        help='Specify a single chapter.')
     parser.add_argument('-l', action='store', dest='chapLast', default=None, 
-                        metavar='chapLast', type=int, help='Specify a number of chapters, latest back.')
+                        metavar='chapLast', type=int, 
+                        help='Specify a number of chapters, latest back.')
     parser.add_argument('-n', action='store_false', dest='top',
 			            help='Disable top level folder.')
     parser.add_argument('-s', action='store', dest='site', default='mp', 
                         metavar='site', help='Specify a site.')
-    parser.add_argument('-se', action='store_true', dest='search', default=False,
-                        help='Search a site.')
+    parser.add_argument('-se', action='store_true', dest='search', 
+                        default=False, help='Search a site.')
     parser.add_argument('-sl', action='store_true', dest='list', 
                         help='List all supported sites.')
     parser.add_argument('-t', action='store', dest='thread', default=10, 
-                        metavar='thread', type=int, help='Specify the number of threads allowed to run at once.' )
+                        metavar='thread', type=int, 
+                        help='Specify the number of threads allowed to run.' )
     parser.add_argument('-x', action='store', dest='extras', default=None, 
                         metavar='extras', help='Specify extra options.')
     parser.add_argument('-v', action='store', dest='verb', type=int, default=1, 

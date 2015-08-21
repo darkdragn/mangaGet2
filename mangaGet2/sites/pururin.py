@@ -1,6 +1,6 @@
 import re
 from mangaGet2.mangaSite import mangaSite
-from mangaGet2.util import bs4, memorize, webpage
+from mangaGet2.util import bs4, loadCookie, memorize, webpage
 
 class pururin(mangaSite):
     tags = ['p', 'pururin']
@@ -38,10 +38,12 @@ class pururin(mangaSite):
                     for i in repls.items():
                         self.series = self.series.replace(*i)
                     return hold.replace(' ', '-')
-                if 'single' in i:
+                elif 'single' in i:
                     link = ''.join(['/gallery/', self.series])
                     self.chapters = [self.Chapter(link, self)]
                     return self.series.split('/')[-1].split('.')[0]
+                elif 'cook' in i:
+                    self.cookie = loadCookie(i.split('=')[-1])
         @property
         @memorize
         def chapters(self):
