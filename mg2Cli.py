@@ -3,6 +3,7 @@ import argparse
 import mangaGet2.sites
 import shutil
 import signal
+import socket
 
 from mangaGet2.util import *
 
@@ -28,7 +29,7 @@ class main():
         self.chapl, self.top = chapLast, top
         self.extras, self.thread = extras, thread
         self.series = self.searchIt() if search else site.Series(series, extras, site)
-        downChapThread(self.series.chapters[chap-1]) if chap else self.downSeries()
+        self.downChapThread(self.series.chapters[chap-1]) if chap else self.downSeries()
     
     @staticmethod
     def downImage(page, dir=None):
@@ -46,12 +47,14 @@ class main():
                 break
             except AttributeError as ae:
                 break
-            except:
-                if 'img' in locals():
-                    del img
-                if hasattr('local', 'writeName'):
-                    if os.path.exists(writeName):
-                        os.remove(writeName)
+            except socket.timeout as st:
+                pass
+            #except:
+                #if 'img' in locals():
+                    #del img
+                #if hasattr('local', 'writeName'):
+                    #if os.path.exists(writeName):
+                        #os.remove(writeName)
     def downChapThread(self, chapter, dirIt=None):
         baseName = '/'.join([dirIt, chapter.title]) if dirIt else chapter.title
         zipName = '.'.join([baseName, 'cbz'])
@@ -59,8 +62,18 @@ class main():
             return
         mkparentdir(baseName)
         writeStats(chapter, baseName)
-        threadIt(self.downImage, chapter.pages, baseName).run(self.thread)
-        os.remove('/'.join([baseName, '.stats']))
+        if self.thread == 1:
+            start = next(len(i[2])-1 for i in os.walk(baseName))
+            start = start if start >= 0 else 0
+            for i in chapter.pages[start:]:
+                try:
+                    self.downImage(i, baseName)
+                except TypeError as te:
+                    with open('test', 'wb') as f:
+                        f.write(i.source)
+        else:
+            threadIt(self.downImage, chapter.pages, baseName).run(self.thread)
+        #os.remove('/'.join([baseName, '.stats']))
         zipItUp(zipName)
         shutil.rmtree(baseName)
     def downSeries(self):
