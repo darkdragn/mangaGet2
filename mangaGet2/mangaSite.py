@@ -20,12 +20,16 @@ class mangaSite(webpage):
             if self.extras:
                 self.runExtras()
             if site:
-                self.siteTemplate = site.siteTemplate
+                try:
+                    self.siteTemplate = site.siteTemplate
+                except AttributeError:
+                    pass
         
         @property
         @memorize
         def chapters(self):
-            return [self.Chapter(link['href'], self) for link in self.soup.findAll(**self.soupArgs)[::-1]]
+            return [self.Chapter(link['href'], self) 
+                    for link in self.soup.findAll(**self.soupArgs)[::-1]]
         @property
         def seriesTemplate(self):
             return self.siteTemplate.format(self.seriesString)

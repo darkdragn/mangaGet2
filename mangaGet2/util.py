@@ -1,14 +1,17 @@
 import functools
+import ghost 
 import gzip
 import io
-import os
 
+import os
 import random
 import re
+import socket
+
 import subprocess
 import sys
-
 import time
+
 from bs4 import BeautifulSoup as bs4
 from HTMLParser import HTMLParser as parser
 from Queue import Queue
@@ -21,6 +24,7 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
+Ghost = ghost.Ghost
 ###############################################################################
 #########################  Begin some standard defs. ##########################
 ###############################################################################
@@ -35,6 +39,21 @@ def display(message, level=0, clrLine=False):
     sys.stdout.write(message)
     sys.stdout.flush()
 
+def initBrowser(url):
+    br = Ghost()
+    session = br.start() #download_images=False)
+    session.wait_timeout = 15
+    
+    session.open(url)
+    time.sleep(5)
+    while True:
+        try:
+            session.open(url)
+            break
+        except ghost.ghost.TimeoutError as e:
+            pass
+    return session
+    
 def loadCookie(fileName):
     cookies = cookielib.MozillaCookieJar(filename=fileName)
     cookies.load()
@@ -118,11 +137,10 @@ class Util():
                         ret = gzipper
                     else:
                         raise RuntimeError('Unknown HTTP Encoding returned')
-            except (urllib2.URLError, Exception) as e:
+            except (urllib2.URLError, socket.timeout) as e:
                 if (maxRetries == 0):
                     print('\nUnable to access the internet...')
-                    raise
-                    #os._exit(1)
+                    print url
                     return
                 else:
                     # random dist. for further protection against anti-leech
@@ -146,15 +164,31 @@ class Util():
 class webpage():
     cookie = []
     
-    def __init__(self, url=None):
+    def __init__(self, url=None, br=None):
         if url:
             self.url = url
+        if br:
+            self.br = br
     @property
     def soup(self):
         return bs4(self.source)
     @property
     @memorize
     def source(self):
+        if hasattr(self, 'br'):
+            #counter = 4
+            while True: #counter:
+                try:
+                    #print self.url
+                    page, res = self.br.open(self.url)
+                    self.page = page
+                    if page.http_status is 200:
+                        break
+                    time.sleep(1)
+                except ghost.ghost.TimeoutError as e:
+                    #counter -= 1
+                    time.sleep(.5)
+            return str(page.content)
         return str(self.urlObj.read())
     @property
     def urlObj(self):
