@@ -154,4 +154,6 @@ if __name__ == '__main__':
                  'chap': results.chapter,  'extras': results.extras,
                  'chapLast': results.chapLast, 'top': results.top,
                  'thread': results.thread})
+    if hasattr(args['site'], 'defaults'):
+        args.update(args['site'].defaults)
     main(**args)
