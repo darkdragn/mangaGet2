@@ -90,9 +90,12 @@ class mangaSite(webpage):
                     while True:
                         data = self.urlObj.read()
                         contentLen = self.meta.getheader('Content-Length')
-                        if len(data) == int(contentLen):
-                            break
+                        if contentLen:
+                            if len(data) == int(contentLen):
+                                break
+                            else:
+                                del self.urlObj
+                                self.urlObj = Util.getUrl(self.url)
                         else:
-                            del self.urlObj
-                            self.urlObj = Util.getUrl(self.url)
+                            break
                     return data

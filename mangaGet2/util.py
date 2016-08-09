@@ -120,8 +120,8 @@ class Util():
         maxRetries = 3
         headers = [('User-agent', ''.join(['Mozilla/5.0 (X11; U; Linux i686; ',
                     'en-US) AppleWebKit/534.3 (KHTML,like Gecko) ',
-                    'Chrome/6.0.472.14 Safari/534.3'])), ('Accept-encoding', 
-                    'gzip')]
+                    'Chrome/6.0.472.14 Safari/534.3']))]#, ('Accept-encoding', 
+                    #'gzip')]
         opener = urllib2.build_opener(*buildOpts)
         opener.addheaders = headers
         while (ret == None):
@@ -145,7 +145,7 @@ class Util():
                 else:
                     # random dist. for further protection against anti-leech
                     # idea from wget
-                    time.sleep(random.uniform(0.5, 1.5))
+                    time.sleep(random.uniform(1.0, 2.5))
                     maxRetries -= 1
         return ret
     

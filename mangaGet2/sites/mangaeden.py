@@ -46,7 +46,7 @@ class mangaeden(mangaSite):
             @property
             def title(self):
                 orig = self.url.split('/')[-3]
-                padIt = lambda x: '{:0>4}'.format(x)
+                padIt = lambda x: '{:0>3}'.format(int(x))
                 if '.' in orig:
                     hold = orig.split('.')
                     return '.'.join([padIt(hold[0]), hold[1]])
