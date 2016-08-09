@@ -106,7 +106,6 @@ class threadIt():
                 self.meth(page, self.arg)
             except:
                 self.queue.put(page)
-                print 'Exception in thread. Adding page back to queue.'
             self.queue.task_done()
     def run(self, num=10):
         for i in self.objs:
