@@ -47,8 +47,8 @@ class main():
                 break
             except AttributeError as ae:
                 break
-            except socket.timeout as st:
-                pass
+            #except socket.timeout as st:
+                #pass
             #except:
                 #if 'img' in locals():
                     #del img
@@ -85,7 +85,7 @@ class main():
                                                                     num=total))
         chapList = self.series.chapters[-self.chapl:] if self.chapl else self.series.chapters
         for cur, chap in enumerate(chapList, 1):
-            ticker = '\r[{:-<10}] Raw:'.format(('+' * ((cur-1)*10/total)))
+            ticker = '\r[{:-<10}] Raw:'.format(('+' * ((cur)*10/total)))
             status = '{}/{}    Chapter Name: {}'.format(cur, total, chap.title)
             display(' '.join([ticker, status]), 1, 1)
             self.downChapThread(chap, title if self.top else None)

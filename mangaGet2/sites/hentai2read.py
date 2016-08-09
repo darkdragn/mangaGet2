@@ -11,16 +11,18 @@ class hentai2read(mangaSite):
     #defaults = {'top': False}
     
     class Series(mangaSite.Series):
-        seriesString = '{}/1/'
+        seriesString = '{}/'
         siteTemplate = 'http://www.hentai2read.com/{}'
         soupArgs = {'name': 'table', 'class_': 'table table-hover'}
         
         @property
         def chapters(self):
             chapTemp = ''.join([self.siteTemplate.format(self.series), '/{}/'])
-            return [self.Chapter(chapTemp.format(i['value']), self) 
-                    for i in self.soup.find('select',
-                        class_='cbo_wpm_chp').findAll('option')][::-1]
+            with open('test', 'ab') as f:
+                for line in self.source:
+                    f.write(line)
+            return [self.Chapter(i['href'], self) for i in self.soup.find('ul',
+                class_='nav-chapters').findAll('a', class_='link-effect')]
         class Chapter(mangaSite.Series.Chapter):
             @property
             def url(self):
@@ -29,14 +31,14 @@ class hentai2read(mangaSite):
             @memorize
             def pages(self):
                 hold = ''.join([self.url, '{}/'])
-                return [self.Page(hold.format(opt['value']), self)
-                        for opt in self.soup.find('select',
-                        class_='cbo_wpm_pag').findAll('option')]
+                return  [self.Page(hold.format(opt.text), self)
+                        for opt in self.soup.find('a',
+                        class_='js-rdrPage').parent.parent.findAll('a')]
             @property
             @memorize
             def title(self):
-                return self.soup.h1.text.split('>')[-1].replace(u'\u2019',
-                        '\'')
+                li = self.soup.find('ol').findAll('li')[-1]
+                return li.span.text.replace(' ', '_')
             class Page(mangaSite.Series.Chapter.Page):
                 @property
                 def url(self):
@@ -44,7 +46,8 @@ class hentai2read(mangaSite):
                 @property
                 @memorize
                 def imgUrl(self):
-                    return self.soup.find('div', class_='prw').img['src']
+                    url = self.soup.find('img', id='arf-reader')['src']
+                    return ''.join(['http:', url])
                 @property
                 def name(self):
-                    return self.imgUrl.split('/')[-1]
+                    return self.imgUrl.split('/')[-1].split('?')[0]
