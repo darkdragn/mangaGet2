@@ -171,7 +171,7 @@ class webpage():
             self.br = br
     @property
     def soup(self):
-        return bs4(self.source, 'lxml')
+        return bs4(self.source, 'html.parser')
     @property
     @memorize
     def source(self):
