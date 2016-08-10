@@ -49,12 +49,6 @@ class main():
                 break
             #except socket.timeout as st:
                 #pass
-            #except:
-                #if 'img' in locals():
-                    #del img
-                #if hasattr('local', 'writeName'):
-                    #if os.path.exists(writeName):
-                        #os.remove(writeName)
     def downChapThread(self, chapter, dirIt=None):
         baseName = '/'.join([dirIt, chapter.title]) if dirIt else chapter.title
         zipName = '.'.join([baseName, 'cbz'])
