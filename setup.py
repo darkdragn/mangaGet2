@@ -15,7 +15,7 @@ setup(
     url='https://github.com/darkdragn/mangaGet2',
     packages=['mangaGet2', 'mangaGet2.sites'],
     scripts=['mg2Cli.py'],
-    install_requires=[ 'beautifulsoup4', 'ghost.py' ],
+    install_requires=[ 'beautifulsoup4', 'requests' ],
     #setup_requires=["nose>=1.0"],
     #test_suite = "nose.collector",
     keywords = ['manga', 'online'],
