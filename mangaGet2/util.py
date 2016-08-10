@@ -1,14 +1,13 @@
 import functools
-import ghost 
 import gzip
 import io
-
 import os
+
 import random
 import re
 import socket
-
 import subprocess
+
 import sys
 import time
 
@@ -24,7 +23,6 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
-Ghost = ghost.Ghost
 ###############################################################################
 #########################  Begin some standard defs. ##########################
 ###############################################################################
@@ -39,26 +37,6 @@ def display(message, level=0, clrLine=False):
     sys.stdout.write(message)
     sys.stdout.flush()
 
-def initBrowser(url):
-    br = Ghost()
-    session = br.start() #download_images=False)
-    session.wait_timeout = 15
-    
-    session.open(url)
-    time.sleep(5)
-    while True:
-        try:
-            session.open(url)
-            break
-        except ghost.ghost.TimeoutError as e:
-            pass
-    return session
-    
-def loadCookie(fileName):
-    cookies = cookielib.MozillaCookieJar(filename=fileName)
-    cookies.load()
-    #handler = urllib2.HTTPHandler(debuglevel=1)
-    return [urllib2.HTTPCookieProcessor(cookies)]
 # :SEE: http://wiki.python.org/moin/PythonDecoratorLibrary/#Alternate_memoize_as_nested_functions
 def memorize(obj):
     cache = obj.cache = {}
@@ -104,7 +82,7 @@ class threadIt():
             page = self.queue.get()
             try:
                 self.meth(page, self.arg)
-            except:
+            except socket.timeout as e:
                 self.queue.put(page)
             self.queue.task_done()
     def run(self, num=10):
@@ -117,41 +95,6 @@ class threadIt():
         self.queue.join()
 
 class Util():
-    @staticmethod
-    def getUrl(url, buildOpts=[]):
-        ret = None
-        maxRetries = 3
-        headers = [('User-agent', ''.join(['Mozilla/5.0 (X11; U; Linux i686; ',
-                    'en-US) AppleWebKit/534.3 (KHTML,like Gecko) ',
-                    'Chrome/6.0.472.14 Safari/534.3']))]#, ('Accept-encoding', 
-                    #'gzip')]
-        opener = urllib2.build_opener(*buildOpts)
-        opener.addheaders = headers
-        while (ret == None):
-            try:
-                readIt = opener.open(url, timeout=20)
-                encoding = readIt.headers.get('Content-Encoding')
-                if encoding == None:
-                    ret = readIt
-                else:
-                    if encoding.upper() == 'GZIP':
-                        compressedstream = io.BytesIO(readIt.read())
-                        gzipper = gzip.GzipFile(fileobj=compressedstream)
-                        ret = gzipper
-                    else:
-                        raise RuntimeError('Unknown HTTP Encoding returned')
-            except (urllib2.URLError, socket.timeout) as e:
-                if (maxRetries == 0):
-                    print('\nUnable to access the internet...')
-                    print url
-                    return
-                else:
-                    # random dist. for further protection against anti-leech
-                    # idea from wget
-                    time.sleep(random.uniform(1.0, 2.5))
-                    maxRetries -= 1
-        return ret
-    
     @staticmethod
     def unescape(inputStr):
         return parser().unescape(inputStr)
@@ -167,32 +110,16 @@ class Util():
 class webpage():
     cookie = []
     
-    def __init__(self, url=None, br=None):
+    def __init__(self, url=None):
         if url:
             self.url = url
-        if br:
-            self.br = br
     @property
     def soup(self):
-        return bs4(self.source, 'html.parser')
+        return bs4(self.urlObj.content, 'html.parser')
     @property
     @memorize
     def source(self):
-        if hasattr(self, 'br'):
-            #counter = 4
-            while True: #counter:
-                try:
-                    #print self.url
-                    page, res = self.br.open(self.url)
-                    self.page = page
-                    if page.http_status is 200:
-                        break
-                    time.sleep(1)
-                except ghost.ghost.TimeoutError as e:
-                    #counter -= 1
-                    time.sleep(.5)
-            return str(page.content)
-        return str(self.urlObj.read())
+        return str(self.urlObj.content)
     @property
     def urlObj(self):
-        return Util.getUrl(self.url, self.cookie)
+        return requests.get(self.url)
