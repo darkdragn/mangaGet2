@@ -81,21 +81,5 @@ class mangaSite(webpage):
                 
                 def __init__(self, url, nameIt=None):
                     self.nameIt=nameIt
-                    self.urlObj = Util.getUrl(url)
-                    self.meta = self.urlObj.info()
-                    self.data = self.dataGen
+                    self.url = url
                     
-                @property
-                def dataGen(self):
-                    while True:
-                        data = self.urlObj.read()
-                        contentLen = self.meta.getheader('Content-Length')
-                        if contentLen:
-                            if len(data) == int(contentLen):
-                                break
-                            else:
-                                del self.urlObj
-                                self.urlObj = Util.getUrl(self.url)
-                        else:
-                            break
-                    return data

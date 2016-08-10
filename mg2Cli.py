@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 import argparse
 import mangaGet2.sites
+import requests
 import shutil
 import signal
 import socket
@@ -40,12 +41,12 @@ class main():
                     writeName = '/'.join([dir, writeName])
                 if os.path.exists(writeName):
                     return
-                img = page.image
-                if img.data:
-                    with open(writeName, 'wb') as f:
-                        f.write(img.data)
+                img = requests.get(page.image.url)
+                with open(writeName, 'wb') as f:
+                    f.write(img.content)
                 break
             except AttributeError as ae:
+                raise
                 break
             #except socket.timeout as st:
                 #pass
