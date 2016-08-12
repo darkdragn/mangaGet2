@@ -13,12 +13,13 @@ class mangaeden(mangaSite):
     
     @classmethod
     def runSearch(cls, searchString, fullTable=False):
-        searchPage = webpage(cls.searchTemplate.format(searchString))
-        searchList = searchPage.soup.find(class_=re.compile('Manga')).findParent('tbody').findAll('tr')
+        search_page = webpage(cls.searchTemplate.format(searchString))
+        search_table= search_page.soup.find(class_=re.compile('Manga'))
+        search_list = search_table.findParent('tbody').findAll('tr')
         dictTableList = []
         if fullTable:
-            return searchList
-        for i in searchList:
+            return search_list
+        for i in search_list:
             them = i.findAll('td')
             try:
                 lChap, dou  = them[3].text.strip('\n').split('\non ')
@@ -26,7 +27,8 @@ class mangaeden(mangaSite):
                 lChap, dou = them[3].text.strip('\n'), ''
             name = them[0].text
             serString = them[0].a['href'].split('/')[-2]
-            dictTableList.append({'name': name, 'lChap': lChap, 'dou': dou, 'serString': serString})
+            dictTableList.append({'name': name, 'lChap': lChap, 'dou': dou, 
+                'serString': serString})
         return dictTableList
       
     class Series(mangaSite.Series):
@@ -35,7 +37,9 @@ class mangaeden(mangaSite):
         soupArgs = {'name': 'a', 'class_': 'chapterLink'}
         
         class Chapter(mangaSite.Series.Chapter):
-            listThem = lambda self: self.soup.find_all('select', class_="selected")[1].find_all('option')
+            def listThem(self):
+                hold = self.soup.find_all('select', class_="selected")[1]
+                return hold.find_all('option')
             @property
             @memorize
             def pages(self):
@@ -55,7 +59,8 @@ class mangaeden(mangaSite):
                 @property
                 @memorize
                 def imgUrl(self):
-                    return ''.join(['http:', self.soup.find('img', id='mainImg')['src']])
+                    raw = self.sour.find('img', id='mainImg')
+                    return 'http:{}'.format(raw['src'])
                 @property
                 def name(self):
                     return '.'.join(['{:0>3}'.format(self.page.split('/')[-2]), 
