@@ -23,8 +23,9 @@ class comicastle(mangaSite):
             @property
             @memorize
             def pages(self):
-                return [self.Page(opt['value'], self)
-                        for opt in self.soup.findAll('select')[1].findAll('option')[:-1]]
+                table = self.soup.findAll('select')[1].findChildren()
+                return [self.Page(opt['value'], self) 
+                        for opt in table[:-1]]
             @property
             @memorize
             def title(self):
