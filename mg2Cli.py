@@ -1,21 +1,19 @@
 #!/usr/bin/env python2
 import argparse
-import mangaGet2.sites
 import requests
 import shutil
 import signal
 import socket
 
+from mangaGet2 import sites
 from mangaGet2.util import *
 
-importClass = lambda i: getattr(__import__('mangaGet2.sites.{}'.format(i), 
-                                           fromlist=[i]), i)
-sites = [importClass(i) for i in mangaGet2.sites.__all__]
+site_list = [getattr(sites, name) for name in sites.__all__]
 
 def listAll():
     print('{: <12}{}\n{: <12}{}'.format('Sites', 'Tags', '-----', '----'))
-    for num, i in enumerate(sites):
-        print('{: <12}{}'.format(''.join([mangaGet2.sites.__all__[num], ':']), 
+    for num, i in enumerate(site_list):
+        print('{: <12}{}'.format(''.join([sites.__all__[num], ':']), 
               ', '.join(i.tags)))
     sys.exit()
 
@@ -29,8 +27,10 @@ class main():
         self.site, self.seriesStr = site, series
         self.chapl, self.top = chapLast, top
         self.extras, self.thread = extras, thread
-        self.series = self.searchIt() if search else site.Series(series, extras, site)
-        self.downChapThread(self.series.chapters[chap-1]) if chap else self.downSeries()
+        self.series = self.searchIt() if search \
+                else site.Series(series, extras, site)
+        self.downChapThread(self.series.chapters[chap-1]) if chap \
+                else self.downSeries()
     
     @staticmethod
     def downImage(page, dir=None):
@@ -68,7 +68,6 @@ class main():
                         f.write(i.source)
         else:
             threadIt(self.downImage, chapter.pages, baseName).run(self.thread)
-        #os.remove('/'.join([baseName, '.stats']))
         zipItUp(zipName)
         shutil.rmtree(baseName)
     def downSeries(self):
@@ -78,34 +77,14 @@ class main():
         total = self.chapl if self.chapl else len(self.series.chapters)
         display('\nSeries {name} contains {num} chapters.\n'.format(name=title, 
                                                                     num=total))
-        chapList = self.series.chapters[-self.chapl:] if self.chapl else self.series.chapters
+        chapList = self.series.chapters[-self.chapl:] if self.chapl \
+                else self.series.chapters
         for cur, chap in enumerate(chapList, 1):
             ticker = '\r[{:-<10}] Raw:'.format(('+' * ((cur)*10/total)))
             status = '{}/{}    Chapter Name: {}'.format(cur, total, chap.title)
             display(' '.join([ticker, status]), 1, 1)
             self.downChapThread(chap, title if self.top else None)
         display('\n')
-    def searchIt(self):
-        fullTable, nameLen = self.site.runSearch(self.seriesStr), 0
-        bold, end = '\033[1m', '\033[0m'
-        for i in fullTable:
-            nameLen = len(i['name']) if len(i['name'])>nameLen else nameLen
-        display('\t'.join(['\n{}{: <{}}'.format(bold, 'Name', nameLen+3), 
-                          'Latest Chapter', 'Date of update{}\n'.format(end)]))             
-        for n, i in enumerate(fullTable, 1):
-            numPrint = ''.join(['{: <14}'.format(i['lChap']), '\t', i['dou'], '\n'])
-            try:
-                disPrint = '\t'.join(['{}. {: <{}}'.format(n, i['name'], 
-                                                           nameLen), numPrint])
-            except:
-                ln  = nameLen + (len(i['name'].encode('utf-16')[2:])/2)
-                name = '{}. {: <{}}'.format(n, i['name'].encode('utf-16')[2:], ln)
-                num = numPrint.encode('utf-16')[2:]
-                disPrint = '\t'.join([name, num])
-            display(disPrint)
-        selection = raw_input('Please select one of the above: ')
-        return self.site.Series(fullTable[int(selection)-1]['serString'], 
-                                site=self.site)
         
 if __name__ == '__main__':
     parser=argparse.ArgumentParser('MangaGet2 Cli')
@@ -140,7 +119,7 @@ if __name__ == '__main__':
     if not results.list and not results.series:
         parser.print_help()
         sys.exit()
-    for i in sites:
+    for i in site_list:
         for tag in i.tags:
             if results.site == tag:
                 args.update({'site': i})
