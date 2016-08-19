@@ -75,22 +75,28 @@ class threadIt():
         self.queue = Queue()
 
     def downPage(self):
-        while not self.queue.empty():
+        while True:
             page = self.queue.get()
+            if not page:
+                self.queue.task_done()
+                break
             try:
                 self.meth(page, self.arg)
             except socket.timeout:
                 self.queue.put(page)
             self.queue.task_done()
 
-    def run(self, num=10):
-        for i in self.objs:
-            self.queue.put(i)
+    def kill(self):
+        [self.queue.put(False) for i in range(0, 4)]
+
+    def run(self, num=4):
         for i in range(num):
             worker = Thread(target=self.downPage)
-            worker.setDaemon(True)
             worker.start()
-        self.queue.join()
+        for i in range(0, len(self.objs))[::num]:
+            [self.queue.put(j) for j in self.objs[i:i+num]]
+            self.queue.join()
+        self.kill()
 
 
 class Util():
