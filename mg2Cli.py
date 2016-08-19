@@ -21,16 +21,19 @@ def listAll():
 
 
 def sigIntHandler(signal, frame):
+    global thread
     print("\nSigInt caught. Exiting...")
+    if 'thread' in globals():
+        thread.kill()
     sys.exit()
 
 
 class main():
-    def __init__(self, site, series, chap=None, chapLast=None,
-                 extras=None, search=None, top=None, thread=None):
+    def __init__(self, series, site=site_list[0], chap=None, chapLast=None,
+                 extras=None, search=None, top=True, thread=4):
         self.site, self.seriesStr = site, series
         self.chapl, self.top = chapLast, top
-        self.extras, self.thread = extras, thread
+        self.extras, self.threads = extras, thread
         self.series = self.searchIt() if search \
             else site.Series(series, extras, site)
         self.downChapThread(self.series.chapters[chap-1]) if chap \
@@ -54,13 +57,14 @@ class main():
                 break
 
     def downChapThread(self, chapter, dirIt=None):
+        global thread
         baseName = '/'.join([dirIt, chapter.title]) if dirIt else chapter.title
         zipName = '.'.join([baseName, 'cbz'])
         if os.path.exists(zipName):
             return
         mkparentdir(baseName)
         writeStats(chapter, baseName)
-        if self.thread == 1:
+        if self.threads == 1:
             start = next(len(i[2])-1 for i in os.walk(baseName))
             start = start if start >= 0 else 0
             for i in chapter.pages[start:]:
@@ -70,7 +74,8 @@ class main():
                     with open('test', 'wb') as f:
                         f.write(i.source)
         else:
-            threadIt(self.downImage, chapter.pages, baseName).run(self.thread)
+            thread = threadIt(self.downImage, chapter.pages, baseName)
+            thread.run(self.threads)
         zipItUp(zipName)
         shutil.rmtree(baseName)
 
@@ -100,7 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('-l', action='store', dest='chapLast', default=None,
                         metavar='chapLast', type=int,
                         help='Specify a number of chapters, latest back.')
-    parser.add_argument('-n', action='store_false', dest='top',
+    parser.add_argument('-n', action='store_false', dest='top', default=True,
                         help='Disable top level folder.')
     parser.add_argument('-s', action='store', dest='site', default='mp',
                         metavar='site', help='Specify a site.')
@@ -108,14 +113,13 @@ if __name__ == '__main__':
                         default=False, help='Search a site.')
     parser.add_argument('-sl', action='store_true', dest='list',
                         help='List all supported sites.')
-    parser.add_argument('-t', action='store', dest='thread', default=10,
+    parser.add_argument('-t', action='store', dest='thread', default=4,
                         metavar='thread', type=int,
                         help='Specify the number of threads allowed to run.')
     parser.add_argument('-x', action='store', dest='extras', default=None,
                         metavar='extras', help='Specify extra options.')
     parser.add_argument('-v', action='store', dest='verb', type=int, default=1,
                         help='Specify a verbosity.', metavar='verbosity')
-    parser.set_defaults(top=True)
     results, args = parser.parse_args(), {}
     signal.signal(signal.SIGINT, sigIntHandler)
     if results.list:
