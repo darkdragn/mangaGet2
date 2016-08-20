@@ -74,8 +74,9 @@ class main():
                     with open('test', 'wb') as f:
                         f.write(i.source)
         else:
-            thread = threadIt(self.downImage, chapter.pages, baseName)
-            thread.run(self.threads)
+            thread = threadIt(self.downImage, chapter.pages, baseName,
+                    self.threads)
+            thread.run()
         zipItUp(zipName)
         shutil.rmtree(baseName)
 
