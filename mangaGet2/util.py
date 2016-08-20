@@ -70,8 +70,8 @@ def zipItUp(zipName, zipItArgs='w'):
 #                          Begin class declarations.                          #
 ###############################################################################
 class threadIt():
-    def __init__(self, meth, objs, arg):
-        self.meth, self.objs, self.arg = meth, objs, arg
+    def __init__(self, meth, objs, arg, num):
+        self.meth, self.objs, self.arg, self.num = meth, objs, arg, num
         self.queue = Queue()
 
     def downPage(self):
@@ -87,9 +87,10 @@ class threadIt():
             self.queue.task_done()
 
     def kill(self):
-        [self.queue.put(False) for i in range(0, 4)]
+        [self.queue.put(False) for i in range(0, self.num)]
 
-    def run(self, num=4):
+    def run(self):
+        num = self.num
         for i in range(num):
             worker = Thread(target=self.downPage)
             worker.start()
