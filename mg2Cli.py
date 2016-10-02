@@ -48,7 +48,10 @@ class main():
                     writeName = '/'.join([dir, writeName])
                 if os.path.exists(writeName):
                     return
-                img = requests.get(page.image.url)
+                img = requests.get(page.image.url,
+                                   headers={'referer': page.chapter.url})
+                if not img.status_code == 200:
+                    pass
                 with open(writeName, 'wb') as f:
                     f.write(img.content)
                 break
