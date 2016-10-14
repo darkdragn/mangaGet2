@@ -13,10 +13,12 @@ site_list = [getattr(sites, name) for name in sites.__all__]
 
 
 def listAll():
-    print('{: <12}{}\n{: <12}{}'.format('Sites', 'Tags', '-----', '----'))
+    len = 15
+    print('{: <{len}}{}\n{: <{len}}{}'.format('Sites', 'Tags', '-----',
+          '----', len=len))
     for num, i in enumerate(site_list):
-        print('{: <12}{}'.format(''.join([sites.__all__[num], ':']),
-              ', '.join(i.tags)))
+        print('{: <{len}}{}'.format(''.join([sites.__all__[num][:len-2], ':']),
+              ', '.join(i.tags), len=len))
     sys.exit()
 
 
@@ -78,7 +80,7 @@ class main():
                         f.write(i.source)
         else:
             thread = threadIt(self.downImage, chapter.pages, baseName,
-                    self.threads)
+                              self.threads)
             thread.run()
         zipItUp(zipName)
         shutil.rmtree(baseName)
