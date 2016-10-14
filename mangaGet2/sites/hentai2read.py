@@ -32,7 +32,10 @@ class Series(mangaSite.Series):
         @memorize
         def title(self):
             li = self.soup.find('ol').findAll('li')[-1]
-            return li.span.text.replace(' ', '_')
+            num, title = li.span.text.split(':', 1)
+            title = title.strip().replace(' ', '_').encode('utf-8')
+            return '__'.join([title.replace(':', '_'),
+                              num.split(' ')[-1].encode('utf-8')])
 
     class Page(mangaSite.Page):
         @property
@@ -47,4 +50,4 @@ class Series(mangaSite.Series):
 
         @property
         def name(self):
-            return self.imgUrl.split('/')[-1].split('?')[0]
+            return self.imgUrl.split('/')[-1].split('?')[0].encode('utf-8')
