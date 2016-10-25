@@ -15,6 +15,24 @@ class Series(mangaSite.Series):
         return [self.Chapter(i['href'], self) for i in self.soup.find('ul',
                 class_='nav-chapters').findAll('a', class_='link-effect')]
 
+    def runExtras(self):
+        for i in self.extras.split(','):
+            if 'author' in i:
+                self.getAuthor()
+
+    def getAuthor(self):
+        author_add = 'hentai-list/author/{}/'.format(self.series)
+        self.url = self.siteTemplate.format(author_add)
+        auth_list = [i.parent['href'] for i in self.soup('h2',
+                     class_='rf-title')]
+        self.chapters = []
+        for i in auth_list:
+            hold = Series(i.split('/')[-2])
+            try:
+                self.chapters.extend(hold.chapters)
+            except AttributeError:
+                pass
+
     class Chapter(mangaSite.Chapter):
         @property
         def url(self):
