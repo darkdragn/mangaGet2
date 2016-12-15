@@ -42,7 +42,7 @@ class Series(mangaSite.Series):
         @memorize
         def pages(self):
             hold = ''.join([self.url, '{}/'])
-            return [self.Page(hold.format(opt.text), self)
+            return [self.Page(hold.format(opt['data-pagid']), self)
                     for opt in self.soup.find('a',
                     class_='js-rdrPage').parent.parent.findAll('a')]
 
