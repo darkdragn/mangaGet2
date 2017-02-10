@@ -26,19 +26,20 @@ class main():
                 writeName = page.name
                 headers = {'referer': page.chapter.url} \
                     if hasattr(page, 'chapter') else {}
+                img = requests.get(page.image.url, headers=headers)
                 if dir:
                     writeName = '/'.join([dir, writeName])
                 if os.path.exists(writeName):
                     return
-                img = requests.get(page.image.url, headers=headers)
                 if not img.status_code == 200:
+                    pass
+                if len(img.content) < 15*1024:
                     pass
                 with open(writeName, 'wb') as f:
                     f.write(img.content)
                 break
             except AttributeError:
                 raise
-                break
 
     def downChapThread(self, chapter, dirIt=None):
         global thread

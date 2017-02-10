@@ -1,3 +1,5 @@
-from . import comicastle, mangaeden, mangahere, mangapark
+from . import comicastle, mangaeden, mangahere, mangapark, readcomicbooksonline
+from . import comicextra
 
-__all__ = ['comicastle', 'mangaeden', 'mangahere', 'mangapark']
+__all__ = ['comicastle', 'comicextra', 'mangaeden', 'mangahere','mangapark', 
+           'readcomicbooksonline']
