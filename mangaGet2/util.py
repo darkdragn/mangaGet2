@@ -132,4 +132,6 @@ class webpage():
 
     @property
     def urlObj(self):
+        if hasattr(self, 'session'):
+            return self.session.get(self.url)
         return requests.get(self.url)
