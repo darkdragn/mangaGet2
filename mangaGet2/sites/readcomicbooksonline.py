@@ -6,14 +6,18 @@ tags = ['rcbo', 'rcb']
 
 class Series(mangaSite.Series):
     seriesString = '{}'
-    siteTemplate = 'http://readcomicbooksonline.com/{}'
+    siteTemplate = 'http://readcomicbooksonline.me/{}'
     soupArgs = {'name': 'div', 'id': 'chapterlist'}
 
     @property
     @memorize
     def chapters(self):
-        return [self.Chapter(link['href'], self)
+        hold = [self.Chapter(link['href'], self)
                 for link in self.soup.find(**self.soupArgs).findAll('a')][::-1]
+        if 'ongoing' in self.soup('td', class_='info')[-1].text:
+            return hold[:-1]
+        return hold
+
 
     class Chapter(mangaSite.Chapter):
         @property
@@ -24,7 +28,9 @@ class Series(mangaSite.Series):
         @property
         @memorize
         def title(self):
-            hold = self.soup.find('div', class_='backtag')('a')[-1].text
+            # hold = self.soup.find('div', class_='backtag')('a')[-1].text
+            hold = [i['value'] for i in self.soup('option')
+                    if i.has_attr('selected')][0]
             return hold.replace(' ', '_')
 
         @property
