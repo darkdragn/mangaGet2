@@ -64,7 +64,8 @@ class Series(mangaSite.Series):
         @memorize
         def imgUrl(self):
             url = self.soup.find('img', id='arf-reader')['src']
-            return ''.join(['http:', url])
+            return url
+            # return ''.join(['http:', url])
 
         @property
         def name(self):
