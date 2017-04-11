@@ -107,7 +107,8 @@ class Util():
 
     @staticmethod
     def normalizeName(inputStr):
-        repls = [('/', '-'), (' ', '_'), ('.', '_'), ('&quot;', '')]
+        repls = [('/', '-'), (' ', '_'), ('.', '_'), ('&quot;', ''),
+                ('&quot;', '"'), ('!', ''), ('?', '')]
         for repl in repls:
             inputStr = inputStr.replace(*repl)
         output = "".join([ch for ch in inputStr if ord(ch) < 128])
@@ -126,7 +127,6 @@ class webpage():
         return bs4(self.urlObj.content, 'html.parser')
 
     @property
-    @memorize
     def source(self):
         return str(self.urlObj.content)
 
