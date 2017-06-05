@@ -40,6 +40,8 @@ class main():
                 break
             except AttributeError:
                 raise
+            except requests.ConnectionError as e:
+                break
 
     def downChapThread(self, chapter, dirIt=None):
         global thread
@@ -62,7 +64,10 @@ class main():
             thread = threadIt(self.downImage, chapter.pages, baseName,
                               self.threads)
             thread.run()
-        zipItUp(zipName)
+        if(len(os.listdir(baseName)) == (len(chapter.pages)+1)):
+            zipItUp(zipName)
+        else:
+            print(' Something happened, we\'re missing some pages')
         shutil.rmtree(baseName)
 
     def downSeries(self):
