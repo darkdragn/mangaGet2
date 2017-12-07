@@ -127,6 +127,7 @@ class webpage():
         return bs4(self.urlObj.content, 'html.parser')
 
     @property
+    @memorize
     def source(self):
         return str(self.urlObj.content)
 

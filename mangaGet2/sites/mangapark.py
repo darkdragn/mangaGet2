@@ -5,7 +5,7 @@ tags = ['mp', 'mangapark']
 
 
 class Series(Series):
-    siteTemplate = 'http://www.mangapark.com{}'
+    siteTemplate = 'http://www.mangapark.me{}'
     seriesString = '/manga/{}/'
     soupArgs = {'name': 'div', 'class_': 'stream'}
     version = 0

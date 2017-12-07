@@ -15,7 +15,7 @@ class Series(mangaSite.Series):
     @property
     @memorize
     def chapters(self):
-        return [self.Chapter(link['href'], self)
+        return [self.Chapter('{}&readType=1'.format(link['href']), self)
                 for link in self.soup(**self.soupArgs)[0]('a')][::-1]
 
     class Chapter(mangaSite.Chapter):
@@ -26,6 +26,9 @@ class Series(mangaSite.Series):
         def listThem(self):
             return [i for i in self.soup('select',
                     id='selectPage')[0]('option')]
+        def pages(self):
+            return [self.Page(i['src'],self) for i in self.soup('div',
+                    id='divImage')[0]('img')]
 
         @property
         @memorize
